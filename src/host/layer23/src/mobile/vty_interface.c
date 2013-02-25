@@ -2655,7 +2655,7 @@ DEFUN(cfg_no_shutdown, cfg_ms_no_shutdown_cmd, "no shutdown",
 	struct osmocom_ms *ms = vty->index, *tmp;
 	int rc;
 
-	if (ms->shutdown != 3)
+	if (!ms->shutdown)
 		return CMD_SUCCESS;
 
 	llist_for_each_entry(tmp, &ms_list, entity) {
@@ -2667,7 +2667,8 @@ DEFUN(cfg_no_shutdown, cfg_ms_no_shutdown_cmd, "no shutdown",
 				"use the same layer2-socket.%sPlease shutdown "
 				"MS '%s' first.%s", ms->name, tmp->name,
 				VTY_NEWLINE, tmp->name, VTY_NEWLINE);
-			return CMD_WARNING;
+                        continue;
+//			return CMD_WARNING;
 		}
 		if (!strcmp(ms->settings.sap_socket_path,
 				tmp->settings.sap_socket_path)) {
