@@ -23,6 +23,8 @@
 #include <errno.h>
 #include <string.h>
 #include <arpa/inet.h>
+#include <time.h>
+#include <stdio.h>
 #include <osmocom/core/talloc.h>
 #include <osmocom/gsm/comp128.h>
 
@@ -59,6 +61,41 @@ char *gsm_check_imsi(const char *imsi)
 
 	return NULL;
 }
+
+static int gsm_kc(struct osmocom_ms *ms, uint8_t *kc, uint8_t key_seq)
+{
+        const char osmocomkc[] = ".osmocom/bb/kc.txt";
+        int len;
+        const char *home;
+        char *kc_file;
+        FILE *fp;
+
+        home = getenv("HOME");
+        if (!home) {
+fail:
+                fprintf(stderr, "Can't deliver SMS, be sure to create '%s' in "
+                        "your home directory.\n", osmocomkc);
+                return NULL;
+        }
+        len = strlen(home) + 1 + sizeof(osmocomkc);
+        kc_file = talloc_size(l23_ctx, len);
+        if (!kc_file)
+                goto fail;
+        snprintf(kc_file, len, "%s/%s", home, osmocomkc);
+
+        fp = fopen(kc_file, "a");
+        if (!fp)
+                goto fail;
+        time_t secs=time(0);
+        struct tm *t=localtime(&secs);
+        fprintf(fp, "%s %02X %02X%02X%02X%02X%02X%02X%02X%02X %04d-%02d-%02d %02d:%02d:%02d\n", ms->name, key_seq, kc[0], kc[1], kc[2], kc[3], kc[4], kc[5], kc[6], kc[7], t->tm_year+1900, t->tm_mon+1, t->tm_mday, t->tm_hour, t->tm_min, t->tm_sec);
+        fclose(fp);
+
+        talloc_free(kc_file);
+
+        return 0;
+}
+
 
 static char *sim_decode_bcd(uint8_t *data, uint8_t length)
 {
@@ -384,6 +421,7 @@ static int subscr_sim_kc(struct osmocom_ms *ms, uint8_t *data,
 	subscr->key_seq = data[8] & 0x07;
 
 	LOGP(DMM, LOGL_INFO, "received KEY from SIM\n");
+	gsm_kc(subscr->ms, subscr->key, subscr->key_seq);
 
 	return 0;
 }
@@ -1025,6 +1063,7 @@ static void subscr_sim_key_cb(struct osmocom_ms *ms, struct msgb *msg)
 	memcpy(data, subscr->key, 8);
 	data[8] = subscr->key_seq;
 	sim_job(ms, nmsg);
+	gsm_kc(subscr->ms, subscr->key, subscr->key_seq);
 
 	/* return signed response */
 	nmsg = gsm48_mmevent_msgb_alloc(GSM48_MM_EVENT_AUTH_RESPONSE);

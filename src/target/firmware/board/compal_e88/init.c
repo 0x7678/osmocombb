@@ -132,7 +132,7 @@ void board_init(int with_irq)
 	fb_init();
 
 	bl_mode_pwl(1);
-	bl_level(50);
+	bl_level(0);
 
 	/* Initialize keypad driver */
 	keypad_init(keymap, with_irq);

@@ -525,7 +525,7 @@ static void vty_hist_add(struct vty *vty)
 {
 	int index;
 
-	if (vty->length == 0)
+	if (vty->length == 0 && vty->hindex != 0)
 		return;
 
 	index = vty->hindex ? vty->hindex - 1 : VTY_MAXHIST - 1;
@@ -545,7 +545,7 @@ static void vty_hist_add(struct vty *vty)
 	/* History index rotation. */
 	vty->hindex++;
 	if (vty->hindex == VTY_MAXHIST)
-		vty->hindex = 0;
+		vty->hindex = 1;
 
 	vty->hp = vty->hindex;
 }
@@ -738,17 +738,22 @@ static void vty_next_line(struct vty *vty)
 
 	if (vty->hp == vty->hindex)
 		return;
+        
+        if (vty->hp == 0)
+                return;
 
 	/* Try is there history exist or not. */
 	try_index = vty->hp;
 	if (try_index == (VTY_MAXHIST - 1))
-		try_index = 0;
+		try_index = 1;
 	else
 		try_index++;
 
 	/* If there is not history return. */
-	if (vty->hist[try_index] == NULL)
-		return;
+	if (vty->hist[try_index] == NULL) {
+	        vty->hpold = vty->hp;
+	        vty->hp = 0; }
+//		return;
 	else
 		vty->hp = try_index;
 
@@ -759,6 +764,9 @@ static void vty_next_line(struct vty *vty)
 static void vty_previous_line(struct vty *vty)
 {
 	int try_index;
+	
+	if (vty->hp == 1)
+	        return;
 
 	try_index = vty->hp;
 	if (try_index == 0)
@@ -767,7 +775,8 @@ static void vty_previous_line(struct vty *vty)
 		try_index--;
 
 	if (vty->hist[try_index] == NULL)
-		return;
+	        vty->hp = vty->hpold;
+//		return;
 	else
 		vty->hp = try_index;
 
@@ -1410,7 +1419,7 @@ int vty_read(struct vty *vty)
 		case '\t':
 			vty_complete_command(vty);
 			break;
-		case '?':
+		case '<':
 			if (vty->node == AUTH_NODE
 			    || vty->node == AUTH_ENABLE_NODE)
 				vty_self_insert(vty, buf[i]);
@@ -1425,7 +1434,7 @@ int vty_read(struct vty *vty)
 				vty->escape = VTY_PRE_ESCAPE;
 			break;
 		default:
-			if (buf[i] > 31 && buf[i] < 127)
+			if (buf[i] > 31 && buf[i] < 256)
 				vty_self_insert(vty, buf[i]);
 			break;
 		}
@@ -1546,6 +1555,8 @@ vty_create (int vty_sock, void *priv)
   vty_event (VTY_WRITE, vty_sock, vty);
   vty_event (VTY_READ, vty_sock, vty);
 
+  vty_hist_add(vty);
+
   return vty;
 }
 
@@ -1631,7 +1642,7 @@ DEFUN(show_history,
 
 	for (index = vty->hindex + 1; index != vty->hindex;) {
 		if (index == VTY_MAXHIST) {
-			index = 0;
+			index = 1;
 			continue;
 		}
 

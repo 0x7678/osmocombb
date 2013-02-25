@@ -87,6 +87,7 @@ struct vty {
 
 	/*! \brief History lookup current point */
 	int hp;
+	int hpold;
 
 	/*! \brief History insert end point */
 	int hindex;

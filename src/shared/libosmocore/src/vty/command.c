@@ -1005,7 +1005,7 @@ static enum match_type cmd_ipv6_prefix_match(const char *str)
 	if (*endptr != '\0')
 		return no_match;
 
-	if (mask < 0 || mask > 128)
+	if (mask < 0 || mask > 256)
 		return no_match;
 
 /* I don't know why mask < 13 makes command match partly.
