@@ -2181,7 +2181,7 @@ int gsm48_rcv_cc(struct osmocom_ms *ms, struct msgb *msg)
 		/* release without sending MMCC_REL_REQ */
 		new_cc_state(trans, GSM_CSTATE_NULL);
 
-		vty_notify(ms, "Release received\n");
+		vty_notify(ms, "%s:Release received\n", ms->name);
 		stop_tcatcher(ms);
 		ms->catch_stat.release++;
 		ms->catch_stat.current = CATCH_IDLE;

@@ -1001,7 +1001,7 @@ static int gsm48_rr_rx_cip_mode_cmd(struct osmocom_ms *ms, struct msgb *msg)
 	if (!sc) {
 		LOGP(DRR, LOGL_INFO, "CIPHERING MODE COMMAND (sc=%u, cr=%u)\n",
 			sc, cr);
-		vty_notify(ms, "Required NO ciphering\n");
+		vty_notify(ms, "%s:Required NO ciphering\n", ms->name);
 		if (!ms->catch_stat.cipher_req)
 			ms->catch_stat.first_cipher = 0;
 		ms->catch_stat.last_cipher = 0;
@@ -1009,18 +1009,18 @@ static int gsm48_rr_rx_cip_mode_cmd(struct osmocom_ms *ms, struct msgb *msg)
 	} else {
 		LOGP(DRR, LOGL_INFO, "CIPHERING MODE COMMAND (sc=%u, "
 			"algo=A5/%d cr=%u)\n", sc, alg_id + 1, cr);
-		vty_notify(ms, "Required ciphering with algo A5/%d\n", alg_id + 1);
+		vty_notify(ms, "%s:Required ciphering with algo A5/%d\n", ms->name, alg_id + 1);
 		if (!ms->catch_stat.cipher_req)
 			ms->catch_stat.first_cipher = alg_id + 1;
 		ms->catch_stat.last_cipher = alg_id + 1;
 	}
 	if (!cr) {
 		ms->catch_stat.cipher_no_cr++;
-		vty_notify(ms, "Answer with NO IMEISV");
+		vty_notify(ms, "%s:Answer with NO IMEISV", ms->name);
 		if (ms->catch_stat.flag < 1)
 			ms->catch_stat.flag = 1;
 	} else {
-		vty_notify(ms, "Answer with IMEISV");
+		vty_notify(ms, "%s:Answer with IMEISV", ms->name);
 	}
 	ms->catch_stat.cipher_req++;
 	if (ms->catch_stat.last_cipher < ms->catch_stat.first_cipher) {
@@ -3428,7 +3428,7 @@ static int gsm48_rr_estab_cnf(struct osmocom_ms *ms, struct msgb *msg)
 	if (!nmsg)
 		return -ENOMEM;
 
-	vty_notify(ms, "Link established\n");
+	vty_notify(ms, "%s:Link established\n", ms->name);
 	ms->catch_stat.power_count = 0;
 	ms->catch_stat.high_power_count = 0;
 	ms->catch_stat.current = CATCH_EST;
@@ -3514,7 +3514,7 @@ static int gsm48_rr_rx_chan_rel(struct osmocom_ms *ms, struct msgb *msg)
 	}
 
 	vty_notify(ms, NULL);
-	vty_notify(ms, "Release received\n");
+	vty_notify(ms, "%s:Release received\n", ms->name);
 	stop_tcatcher(ms);
 	ms->catch_stat.release++;
 	ms->catch_stat.current = CATCH_IDLE;
@@ -4706,7 +4706,7 @@ static int gsm48_rr_est_req(struct osmocom_ms *ms, struct msgb *msg)
 	memcpy(msgb_put(rr->rr_est_msg, msgb_l3len(msg)),
 		msgb_l3(msg), msgb_l3len(msg));
 
-	vty_notify(ms, "Channel request\n");
+	vty_notify(ms, "%s:Channel request\n", ms->name);
 
 	/* request channel */
 	return gsm48_rr_chan_req(ms, rrh->cause, 0, 0);

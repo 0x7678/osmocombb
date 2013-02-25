@@ -1513,22 +1513,22 @@ static int gsm322_m_display_plmns(struct osmocom_ms *ms, struct msgb *msg)
 	vty_notify(ms, NULL);
 	switch (msg_type) {
 	case GSM322_EVENT_REG_FAILED:
-		vty_notify(ms, "Failed to register to network %s, %s "
-			"(%s, %s)\n",
+		vty_notify(ms, "%s:Failed to register to network %s, %s "
+			"(%s, %s)\n", ms->name,
 			gsm_print_mcc(plmn->mcc), gsm_print_mnc(plmn->mnc),
 			gsm_get_mcc(plmn->mcc),
 			gsm_get_mnc(plmn->mcc, plmn->mnc));
 		break;
 	case GSM322_EVENT_NO_CELL_FOUND:
-		vty_notify(ms, "No cell found for network %s, %s "
-			"(%s, %s)\n",
+		vty_notify(ms, "%s:No cell found for network %s, %s "
+			"(%s, %s)\n", ms->name,
 			gsm_print_mcc(plmn->mcc), gsm_print_mnc(plmn->mnc),
 			gsm_get_mcc(plmn->mcc),
 			gsm_get_mnc(plmn->mcc, plmn->mnc));
 		break;
 	case GSM322_EVENT_ROAMING_NA:
-		vty_notify(ms, "Roaming not allowed to network %s, %s "
-			"(%s, %s)\n",
+		vty_notify(ms, "%s:Roaming not allowed to network %s, %s "
+			"(%s, %s)\n", ms->name,
 			gsm_print_mcc(plmn->mcc), gsm_print_mnc(plmn->mnc),
 			gsm_get_mcc(plmn->mcc),
 			gsm_get_mnc(plmn->mcc, plmn->mnc));
@@ -1536,11 +1536,11 @@ static int gsm322_m_display_plmns(struct osmocom_ms *ms, struct msgb *msg)
 	}
 
 	if (llist_empty(&plmn->sorted_plmn))
-		vty_notify(ms, "Search network!\n");
+		vty_notify(ms, "%s:Search network!\n", ms->name);
 	else {
-		vty_notify(ms, "Search or select from network:\n");
+		vty_notify(ms, "%s:Search or select from network:\n", ms->name);
 		llist_for_each_entry(temp, &plmn->sorted_plmn, entry)
-			vty_notify(ms, " Network %s, %s (%s, %s)\n",
+			vty_notify(ms, " %s:Network %s, %s (%s, %s)\n", ms->name,
 				gsm_print_mcc(temp->mcc),
 				gsm_print_mnc(temp->mnc),
 				gsm_get_mcc(temp->mcc),
@@ -2437,8 +2437,8 @@ indicate_plmn_avail:
 	cs->sel_lac = cs->si->lac;
 	cs->sel_id = cs->si->cell_id;
 	if (ms->rrlayer.monitor) {
-		vty_notify(ms, "MON: %scell selected ARFCN=%s MCC=%s MNC=%s "
-			"LAC=0x%04x cellid=0x%04x (%s %s)\n",
+		vty_notify(ms, "%s:MON: %scell selected ARFCN=%s MCC=%s MNC=%s "
+			"LAC=0x%04x cellid=0x%04x (%s %s)\n", ms->name,
 			(any) ? "any " : "", gsm_print_arfcn(cs->sel_arfcn),
 			gsm_print_mcc(cs->sel_mcc), gsm_print_mnc(cs->sel_mnc),
 			cs->sel_lac, cs->sel_id,
@@ -2622,8 +2622,8 @@ static int gsm322_c_camp_sysinfo_bcch(struct osmocom_ms *ms, struct msgb *msg)
 		   && cs->list[cs->arfci].sysinfo->sp_cbq)) {
 			LOGP(DCS, LOGL_INFO, "Cell becomes barred.\n");
 			if (ms->rrlayer.monitor)
-				vty_notify(ms, "MON: trigger cell re-selection"
-					": cell becomes barred\n");
+				vty_notify(ms, "%s:MON: trigger cell re-selection"
+					": cell becomes barred\n", ms->name);
 			trigger_resel:
 			/* mark cell as unscanned */
 			cs->list[cs->arfci].flags &= ~GSM322_CS_FLAG_SYSINFO;
@@ -2650,8 +2650,8 @@ static int gsm322_c_camp_sysinfo_bcch(struct osmocom_ms *ms, struct msgb *msg)
 			& (s->class_barr ^ 0xffff))) {
 			LOGP(DCS, LOGL_INFO, "Cell access becomes barred.\n");
 			if (ms->rrlayer.monitor)
-				vty_notify(ms, "MON: trigger cell re-selection"
-					": access to cell becomes barred\n");
+				vty_notify(ms, "%s:MON: trigger cell re-selection"
+					": access to cell becomes barred\n", ms->name);
 			goto trigger_resel;
 		}
 	}
@@ -2662,16 +2662,16 @@ static int gsm322_c_camp_sysinfo_bcch(struct osmocom_ms *ms, struct msgb *msg)
 		LOGP(DCS, LOGL_NOTICE, "Cell changes location area. "
 			"This is not good!\n");
 		if (ms->rrlayer.monitor)
-			vty_notify(ms, "MON: trigger cell re-selection: "
-				"cell changes LAI\n");
+			vty_notify(ms, "%s:MON: trigger cell re-selection: "
+				"cell changes LAI\n", ms->name);
 		goto trigger_resel;
 	}
 	if (cs->sel_id != s->cell_id) {
 		LOGP(DCS, LOGL_NOTICE, "Cell changes cell ID. "
 			"This is not good!\n");
 		if (ms->rrlayer.monitor)
-			vty_notify(ms, "MON: trigger cell re-selection: "
-				"cell changes cell ID\n");
+			vty_notify(ms, "%s:MON: trigger cell re-selection: "
+				"cell changes cell ID\n", ms->name);
 		goto trigger_resel;
 	}
 
@@ -3082,8 +3082,8 @@ static void gsm322_cs_loss(void *arg)
 			LOGP(DCS, LOGL_INFO, "Loss of CCCH, Trigger "
 				"re-selection.\n");
 			if (ms->rrlayer.monitor)
-				vty_notify(ms, "MON: trigger cell "
-					"re-selection: loss of signal\n");
+				vty_notify(ms, "%s:MON: trigger cell "
+					"re-selection: loss of signal\n", ms->name);
 
 			nmsg = gsm322_msgb_alloc(GSM322_EVENT_CELL_RESEL);
 			if (!nmsg)
@@ -4140,13 +4140,13 @@ static int gsm322_nb_check(struct osmocom_ms *ms, int any)
 	}
 
 	if (ms->rrlayer.monitor) {
-		vty_notify(ms, "MON: cell    ARFCN     LAC    C1  C2  CRH RLA_C "
-			"bargraph\n");
+		vty_notify(ms, "%s:MON: cell    ARFCN     LAC    C1  C2  CRH RLA_C "
+			"bargraph\n", ms->name);
 		snprintf(arfcn_text, 10, "%s         ",
 			gsm_print_arfcn(cs->sel_arfcn));
 		arfcn_text[9] = '\0';
-		vty_notify(ms, "MON: serving %s 0x%04x %3d %3d     %4d  "
-			"%s\n", arfcn_text, cs->sel_lac, cs->c1, cs->c2,
+		vty_notify(ms, "%s:MON: serving %s 0x%04x %3d %3d     %4d  "
+			"%s\n", ms->name, arfcn_text, cs->sel_lac, cs->c1, cs->c2,
 			cs->rla_c_dbm, bargraph(cs->rla_c_dbm / 2, -55, -24));
 	}
 
@@ -4167,8 +4167,8 @@ static int gsm322_nb_check(struct osmocom_ms *ms, int any)
 				snprintf(arfcn_text, 10, "%s         ",
 					gsm_print_arfcn(nb->arfcn));
 				arfcn_text[9] = '\0';
-				vty_notify(ms, "MON: nb %2d   %s  ARFCN not "
-					"supported\n", i + 1, arfcn_text);
+				vty_notify(ms, "%s:MON: nb %2d   %s  ARFCN not "
+					"supported\n", ms->name, i + 1, arfcn_text);
 			}
 			goto cont;
 		}
@@ -4180,8 +4180,8 @@ static int gsm322_nb_check(struct osmocom_ms *ms, int any)
 				snprintf(arfcn_text, 10, "%s         ",
 					gsm_print_arfcn(nb->arfcn));
 				arfcn_text[9] = '\0';
-				vty_notify(ms, "MON: nb %2d   %s           "
-					"         %4d  %s\n",
+				vty_notify(ms, "%s:MON: nb %2d   %s           "
+					"         %4d  %s\n", ms->name,
 					i + 1, arfcn_text, nb->rla_c_dbm,
 					bargraph(nb->rla_c_dbm / 2, -55, -24));
 			}
@@ -4226,8 +4226,8 @@ static int gsm322_nb_check(struct osmocom_ms *ms, int any)
 			snprintf(arfcn_text, 10, "%s         ",
 				gsm_print_arfcn(nb->arfcn));
 			arfcn_text[9] = '\0';
-			vty_notify(ms, "MON: nb %2d   %s 0x%04x %3d %3d %2d"
-				"  %4d  %s\n", i + 1, arfcn_text, s->lac,
+			vty_notify(ms, "%s:MON: nb %2d   %s 0x%04x %3d %3d %2d"
+				"  %4d  %s\n", ms->name, i + 1, arfcn_text, s->lac,
 				nb->c1, nb->c2, nb->crh, nb->rla_c_dbm,
 				bargraph(nb->rla_c_dbm / 2, -55, -24));
 		}
@@ -4302,7 +4302,7 @@ cont:
 
 	if (!i) {
 		if (ms->rrlayer.monitor)
-			vty_notify(ms, "MON: no neighbour cells\n");
+			vty_notify(ms, "%s:MON: no neighbour cells\n", ms->name);
 	}
 
 	if (cs->resel_when + GSM58_RESEL_THRESHOLD >= now) {
@@ -4611,8 +4611,8 @@ printf("%d time to sync again: %u\n", nb->arfcn, now + GSM58_READ_AGAIN - nb->wh
 			"reselection.\n");
 
 		if (ms->rrlayer.monitor)
-			vty_notify(ms, "MON: trigger cell re-selection: "
-				"better cell\n");
+			vty_notify(ms, "%s:MON: trigger cell re-selection: "
+				"better cell\n", ms->name);
 
 		cs->resel_when = now;
 

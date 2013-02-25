@@ -672,18 +672,18 @@ static void subscr_sim_query_cb(struct osmocom_ms *ms, struct msgb *msg)
 				payload[1]);
 
 			vty_notify(ms, NULL);
-			vty_notify(ms, "Please give PIN for ICCID %s (you have "
-				"%d tries left)\n", subscr->iccid, payload[1]);
+			vty_notify(ms, "%s:Please give PIN for ICCID %s (you have "
+				"%d tries left)\n", ms->name, subscr->iccid, payload[1]);
 			subscr->sim_pin_required = 1;
 			break;
 		case SIM_CAUSE_PIN1_BLOCKED:
 			LOGP(DMM, LOGL_NOTICE, "PIN is blocked\n");
 
 			vty_notify(ms, NULL);
-			vty_notify(ms, "PIN is blocked\n");
+			vty_notify(ms, "%s:PIN is blocked\n", ms->name);
 			if (payload[1]) {
-				vty_notify(ms, "Please give PUC for ICCID %s "
-					"(you have %d tries left)\n",
+				vty_notify(ms, "%s:Please give PUC for ICCID %s "
+					"(you have %d tries left)\n", ms->name,
 					subscr->iccid, payload[1]);
 			}
 			subscr->sim_pin_required = 1;
@@ -692,7 +692,7 @@ static void subscr_sim_query_cb(struct osmocom_ms *ms, struct msgb *msg)
 			LOGP(DMM, LOGL_NOTICE, "PUC is blocked\n");
 
 			vty_notify(ms, NULL);
-			vty_notify(ms, "PUC is blocked\n");
+			vty_notify(ms, "%s:PUC is blocked\n", ms->name);
 			subscr->sim_pin_required = 1;
 			break;
 		default:
@@ -704,7 +704,7 @@ static void subscr_sim_query_cb(struct osmocom_ms *ms, struct msgb *msg)
 			LOGP(DMM, LOGL_NOTICE, "SIM reading failed\n");
 
 			vty_notify(ms, NULL);
-			vty_notify(ms, "SIM failed, replace SIM!\n");
+			vty_notify(ms, "%s:SIM failed, replace SIM!\n", ms->name);
 
 			/* detach simcard */
 			subscr->sim_valid = 0;
@@ -735,8 +735,8 @@ static void subscr_sim_query_cb(struct osmocom_ms *ms, struct msgb *msg)
 		LOGP(DMM, LOGL_NOTICE, "SIM reading failed, file invalid\n");
 		if (subscr_sim_files[subscr->sim_file_index].mandatory) {
 			vty_notify(ms, NULL);
-			vty_notify(ms, "SIM failed, data invalid, replace "
-				"SIM!\n");
+			vty_notify(ms, "%s:SIM failed, data invalid, replace "
+				"SIM!\n", ms->name);
 			msgb_free(msg);
 
 			return;

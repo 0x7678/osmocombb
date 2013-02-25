@@ -205,13 +205,13 @@ static int gsm480_ss_result(struct osmocom_ms *ms, const char *response,
 		while ((s = strchr(text, '\r')))
 			*s = '\n';
 		while ((s = strsep(&t, "\n"))) {
-			vty_notify(ms, "Service response: %s\n", s);
+			vty_notify(ms, "%s:Service response: %s\n", ms->name, s);
 		}
 	} else if (error)
-		vty_notify(ms, "Service request failed: %s\n",
+		vty_notify(ms, "%s:Service request failed: %s\n", ms->name,
 			get_value_string(gsm480_err_names, error));
 	else
-		vty_notify(ms, "Service request failed.\n");
+		vty_notify(ms, "%s:Service request failed.\n", ms->name);
 
 	return 0;
 }
@@ -259,13 +259,14 @@ int gsm480_ss_exit(struct osmocom_ms *ms)
  */
 void _gsm480_ss_trans_free(struct gsm_trans *trans)
 {
+        struct osmocom_ms *ms = trans->ms;
 	if (trans->ss.msg) {
 		LOGP(DSS, LOGL_INFO, "Free pending SS request\n");
 		msgb_free(trans->ss.msg);
 		trans->ss.msg = NULL;
 	}
 	vty_notify(trans->ms, NULL);
-	vty_notify(trans->ms, "Service connection terminated.\n");
+	vty_notify(trans->ms, "%s:Service connection terminated.\n", ms->name);
 }
 
 /* release MM connection, free transaction */
@@ -810,9 +811,9 @@ static int gsm480_rx_cf(struct gsm_trans *trans, const uint8_t *data,
 	}
 	if (data[0] == 0x80) {
 		if ((tag_data[0] & 0x01))
-			vty_notify(ms, "Status: activated\n");
+			vty_notify(ms, "%s:Status: activated\n", ms->name);
 		else
-			vty_notify(ms, "Status: deactivated\n");
+			vty_notify(ms, "%s:Status: deactivated\n", ms->name);
 		return 0;
 	}
 
@@ -831,7 +832,7 @@ static int gsm480_rx_cf(struct gsm_trans *trans, const uint8_t *data,
 		/* check for SS code */
 		if (data[0] != 0x04)
 			break;
-		vty_notify(ms, "Reply for %s\n", decode_ss_code(tag_data[0]));
+		vty_notify(ms, "%s:Reply for %s\n", ms->name, decode_ss_code(tag_data[0]));
 		len -= tag_data - data + tag_len;
 		data = tag_data + tag_len;
 		/* sequence tag */
@@ -847,7 +848,7 @@ static int gsm480_rx_cf(struct gsm_trans *trans, const uint8_t *data,
 		data = tag_data;
 		break;
 	default:
-		vty_notify(ms, "Call Forwarding reply unsupported.\n");
+		vty_notify(ms, "%s:Call Forwarding reply unsupported.\n", ms->name);
 		return 0;
 	}
 	
@@ -879,20 +880,20 @@ static int gsm480_rx_cf(struct gsm_trans *trans, const uint8_t *data,
 				osmo_hexdump(tag_data, tag_len));
 			switch (data2[0]) {
 			case 0x82:
-				vty_notify(ms, "Bearer Service: %s\n",
+				vty_notify(ms, "%s:Bearer Service: %s\n", ms->name,
 					get_value_string(Bearerservice_vals,
 								tag_data[0]));
 				break;
 			case 0x83:
-				vty_notify(ms, "Teleservice: %s\n",
+				vty_notify(ms, "%s:Teleservice: %s\n", ms->name,
 					get_value_string(Teleservice_vals,
 								tag_data[0]));
 				break;
 			case 0x84:
 				if ((tag_data[0] & 0x01))
-					vty_notify(ms, "Status: activated\n");
+					vty_notify(ms, "%s:Status: activated\n", ms->name);
 				else
-					vty_notify(ms, "Status: deactivated\n");
+					vty_notify(ms, "%s:Status: deactivated\n", ms->name);
 				break;
 			case 0x85:
 				if (((tag_data[0] & 0x70) >> 4) == 1)
@@ -904,7 +905,7 @@ static int gsm480_rx_cf(struct gsm_trans *trans, const uint8_t *data,
 				gsm48_decode_bcd_number(number + strlen(number),
 					sizeof(number) - strlen(number),
 					tag_data - 1, 1);
-				vty_notify(ms, "Destination: %s\n", number);
+				vty_notify(ms, "%s:Destination: %s\n", ms->name, number);
 				break;
 			}
 			len2 -= tag_data - data2 + tag_len;

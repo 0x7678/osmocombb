@@ -303,59 +303,59 @@ int mncc_recv_mobile(struct osmocom_ms *ms, int msg_type, void *arg)
 		vty_notify(ms, NULL);
 		switch (data->cause.value) {
 		case GSM48_CC_CAUSE_UNASSIGNED_NR:
-			vty_notify(ms, "Call: Number not assigned\n");
+			vty_notify(ms, "%s:Call: Number not assigned\n", ms->name);
 			break;
 		case GSM48_CC_CAUSE_NO_ROUTE:
-			vty_notify(ms, "Call: Destination unreachable\n");
+			vty_notify(ms, "%s:Call: Destination unreachable\n", ms->name);
 			break;
 		case GSM48_CC_CAUSE_NORM_CALL_CLEAR:
-			vty_notify(ms, "Call: Remote hangs up\n");
+			vty_notify(ms, "%s:Call: Remote hangs up\n", ms->name);
 			break;
 		case GSM48_CC_CAUSE_USER_BUSY:
-			vty_notify(ms, "Call: Remote busy\n");
+			vty_notify(ms, "%s:Call: Remote busy\n", ms->name);
 			break;
 		case GSM48_CC_CAUSE_USER_NOTRESPOND:
-			vty_notify(ms, "Call: Remote not responding\n");
+			vty_notify(ms, "%s:Call: Remote not responding\n", ms->name);
 			break;
 		case GSM48_CC_CAUSE_USER_ALERTING_NA:
-			vty_notify(ms, "Call: Remote not answering\n");
+			vty_notify(ms, "%s:Call: Remote not answering\n", ms->name);
 			break;
 		case GSM48_CC_CAUSE_CALL_REJECTED:
-			vty_notify(ms, "Call has been rejected\n");
+			vty_notify(ms, "%s:Call has been rejected\n", ms->name);
 			break;
 		case GSM48_CC_CAUSE_NUMBER_CHANGED:
-			vty_notify(ms, "Call: Number changed\n");
+			vty_notify(ms, "%s:Call: Number changed\n", ms->name);
 			break;
 		case GSM48_CC_CAUSE_PRE_EMPTION:
-			vty_notify(ms, "Call: Cleared due to pre-emption\n");
+			vty_notify(ms, "%s:Call: Cleared due to pre-emption\n", ms->name);
 			break;
 		case GSM48_CC_CAUSE_DEST_OOO:
-			vty_notify(ms, "Call: Remote out of order\n");
+			vty_notify(ms, "%s:Call: Remote out of order\n", ms->name);
 			break;
 		case GSM48_CC_CAUSE_INV_NR_FORMAT:
-			vty_notify(ms, "Call: Number invalid or imcomplete\n");
+			vty_notify(ms, "%s:Call: Number invalid or imcomplete\n", ms->name);
 			break;
 		case GSM48_CC_CAUSE_NO_CIRCUIT_CHAN:
-			vty_notify(ms, "Call: No channel available\n");
+			vty_notify(ms, "%s:Call: No channel available\n", ms->name);
 			break;
 		case GSM48_CC_CAUSE_NETWORK_OOO:
-			vty_notify(ms, "Call: Network out of order\n");
+			vty_notify(ms, "%s:Call: Network out of order\n", ms->name);
 			break;
 		case GSM48_CC_CAUSE_TEMP_FAILURE:
-			vty_notify(ms, "Call: Temporary failure\n");
+			vty_notify(ms, "%s:Call: Temporary failure\n", ms->name);
 			break;
 		case GSM48_CC_CAUSE_SWITCH_CONG:
-			vty_notify(ms, "Congestion\n");
+			vty_notify(ms, "%s:Congestion\n", ms->name);
 			break;
 		default:
-			vty_notify(ms, "Call has been disconnected "
-				"(clear cause %d)\n", data->cause.value);
+			vty_notify(ms, "%s:Call has been disconnected "
+				"(clear cause %d)\n", ms->name, data->cause.value);
 		}
 		LOGP(DMNCC, LOGL_INFO, "Call has been disconnected "
 			"(cause %d)\n", data->cause.value);
 		if ((data->fields & MNCC_F_PROGRESS)
 		 && data->progress.descr == 8) {
-			vty_notify(ms, "Please hang up!\n");
+			vty_notify(ms, "%s:Please hang up!\n", ms->name);
 		 	break;
 		}
 		free_call(call);
@@ -365,16 +365,16 @@ int mncc_recv_mobile(struct osmocom_ms *ms, int msg_type, void *arg)
 	case MNCC_REL_CNF:
 		vty_notify(ms, NULL);
 		if (data->cause.value == GSM48_CC_CAUSE_CALL_REJECTED)
-			vty_notify(ms, "Call has been rejected\n");
+			vty_notify(ms, "%s:Call has been rejected\n", ms->name);
 		else
-			vty_notify(ms, "Call has been released\n");
+			vty_notify(ms, "%s:Call has been released\n", ms->name);
 		LOGP(DMNCC, LOGL_INFO, "Call has been released (cause %d)\n",
 			data->cause.value);
 		free_call(call);
 		break;
 	case MNCC_CALL_PROC_IND:
 		vty_notify(ms, NULL);
-		vty_notify(ms, "Call is proceeding\n");
+		vty_notify(ms, "%s:Call is proceeding\n", ms->name);
 		LOGP(DMNCC, LOGL_INFO, "Call is proceeding\n");
 		if ((data->fields & MNCC_F_BEARER_CAP)
 		 && data->bearer_cap.speech_ver[0] >= 0) {
@@ -383,18 +383,18 @@ int mncc_recv_mobile(struct osmocom_ms *ms, int msg_type, void *arg)
 		break;
 	case MNCC_ALERT_IND:
 		vty_notify(ms, NULL);
-		vty_notify(ms, "Call is alerting\n");
+		vty_notify(ms, "%s:Call is alerting\n", ms->name);
 		LOGP(DMNCC, LOGL_INFO, "Call is alerting\n");
 		break;
 	case MNCC_SETUP_CNF:
 		vty_notify(ms, NULL);
-		vty_notify(ms, "Call is answered\n");
+		vty_notify(ms, "%s:Call is answered\n", ms->name);
 		LOGP(DMNCC, LOGL_INFO, "Call is answered\n");
 		break;
 	case MNCC_SETUP_IND:
 		vty_notify(ms, NULL);
 		if (!first_call && !ms->settings.cw) {
-			vty_notify(ms, "Incoming call rejected while busy\n");
+			vty_notify(ms, "%s:Incoming call rejected while busy\n", ms->name);
 			LOGP(DMNCC, LOGL_INFO, "Incoming call but busy\n");
 			cause = GSM48_CC_CAUSE_USER_BUSY;
 			goto release;
@@ -446,15 +446,15 @@ int mncc_recv_mobile(struct osmocom_ms *ms, int msg_type, void *arg)
 		}
 		/* presentation allowed if present == 0 */
 		if (data->calling.present || !data->calling.number[0])
-			vty_notify(ms, "Incoming call (anonymous)\n");
+			vty_notify(ms, "%s:Incoming call (anonymous)\n", ms->name);
 		else if (data->calling.type == 1)
-			vty_notify(ms, "Incoming call (from +%s)\n",
+			vty_notify(ms, "%s:Incoming call (from +%s)\n", ms->name,
 				data->calling.number);
 		else if (data->calling.type == 2)
-			vty_notify(ms, "Incoming call (from 0-%s)\n",
+			vty_notify(ms, "%s:Incoming call (from 0-%s)\n", ms->name,
 				data->calling.number);
 		else
-			vty_notify(ms, "Incoming call (from %s)\n",
+			vty_notify(ms, "%s:Incoming call (from %s)\n", ms->name,
 				data->calling.number);
 		LOGP(DMNCC, LOGL_INFO, "Incoming call (from %s callref %x)\n",
 			data->calling.number, call->callref);
@@ -493,29 +493,29 @@ int mncc_recv_mobile(struct osmocom_ms *ms, int msg_type, void *arg)
 		break;
 	case MNCC_SETUP_COMPL_IND:
 		vty_notify(ms, NULL);
-		vty_notify(ms, "Call is connected\n");
+		vty_notify(ms, "%s:Call is connected\n", ms->name);
 		LOGP(DMNCC, LOGL_INFO, "Call is connected\n");
 		break;
 	case MNCC_HOLD_CNF:
 		vty_notify(ms, NULL);
-		vty_notify(ms, "Call is on hold\n");
+		vty_notify(ms, "%s:Call is on hold\n", ms->name);
 		LOGP(DMNCC, LOGL_INFO, "Call is on hold\n");
 		call->hold = 1;
 		break;
 	case MNCC_HOLD_REJ:
 		vty_notify(ms, NULL);
-		vty_notify(ms, "Call hold was rejected\n");
+		vty_notify(ms, "%s:Call hold was rejected\n", ms->name);
 		LOGP(DMNCC, LOGL_INFO, "Call hold was rejected\n");
 		break;
 	case MNCC_RETRIEVE_CNF:
 		vty_notify(ms, NULL);
-		vty_notify(ms, "Call is retrieved\n");
+		vty_notify(ms, "%s:Call is retrieved\n", ms->name);
 		LOGP(DMNCC, LOGL_INFO, "Call is retrieved\n");
 		call->hold = 0;
 		break;
 	case MNCC_RETRIEVE_REJ:
 		vty_notify(ms, NULL);
-		vty_notify(ms, "Call retrieve was rejected\n");
+		vty_notify(ms, "%s:Call retrieve was rejected\n", ms->name);
 		LOGP(DMNCC, LOGL_INFO, "Call retrieve was rejected\n");
 		break;
 	case MNCC_FACILITY_IND:
@@ -544,8 +544,8 @@ int mncc_call(struct osmocom_ms *ms, char *number)
 	llist_for_each_entry(call, &call_list, entry) {
 		if (!call->hold) {
 			vty_notify(ms, NULL);
-			vty_notify(ms, "Please put active call on hold "
-				"first!\n");
+			vty_notify(ms, "%s:Please put active call on hold "
+				"first!\n", ms->name);
 			LOGP(DMNCC, LOGL_INFO, "Cannot make a call, busy!\n");
 			return -EBUSY;
 		}
@@ -613,7 +613,7 @@ int mncc_hangup(struct osmocom_ms *ms)
 	if (!found) {
 		LOGP(DMNCC, LOGL_INFO, "No active call to hangup\n");
 		vty_notify(ms, NULL);
-		vty_notify(ms, "No active call\n");
+		vty_notify(ms, "%s:No active call\n", ms->name);
 		return -EINVAL;
 	}
 
@@ -640,13 +640,13 @@ int mncc_answer(struct osmocom_ms *ms)
 	if (!alerting) {
 		LOGP(DMNCC, LOGL_INFO, "No call alerting\n");
 		vty_notify(ms, NULL);
-		vty_notify(ms, "No alerting call\n");
+		vty_notify(ms, "%s:No alerting call\n", ms->name);
 		return -EBUSY;
 	}
 	if (active) {
 		LOGP(DMNCC, LOGL_INFO, "Answer but we have an active call\n");
 		vty_notify(ms, NULL);
-		vty_notify(ms, "Please put active call on hold first!\n");
+		vty_notify(ms, "%s:Please put active call on hold first!\n", ms->name);
 		return -EBUSY;
 	}
 	alerting->ring = 0;
@@ -671,7 +671,7 @@ int mncc_hold(struct osmocom_ms *ms)
 	if (!found) {
 		LOGP(DMNCC, LOGL_INFO, "No active call to hold\n");
 		vty_notify(ms, NULL);
-		vty_notify(ms, "No active call\n");
+		vty_notify(ms, "%s:No active call\n", ms->name);
 		return -EINVAL;
 	}
 
@@ -695,25 +695,25 @@ int mncc_retrieve(struct osmocom_ms *ms, int number)
 	if (active) {
 		LOGP(DMNCC, LOGL_INFO, "Cannot retrieve during active call\n");
 		vty_notify(ms, NULL);
-		vty_notify(ms, "Hold active call first!\n");
+		vty_notify(ms, "%s:Hold active call first!\n", ms->name);
 		return -EINVAL;
 	}
 	if (holdnum == 0) {
 		vty_notify(ms, NULL);
-		vty_notify(ms, "No call on hold!\n");
+		vty_notify(ms, "%s:No call on hold!\n", ms->name);
 		return -EINVAL;
 	}
 	if (holdnum > 1 && number <= 0) {
 		vty_notify(ms, NULL);
-		vty_notify(ms, "Select call 1..%d\n", holdnum);
+		vty_notify(ms, "%s:Select call 1..%d\n", ms->name, holdnum);
 		return -EINVAL;
 	}
 	if (holdnum == 1 && number <= 0)
 		number = 1;
 	if (number > holdnum) {
 		vty_notify(ms, NULL);
-		vty_notify(ms, "Given number %d out of range!\n", number);
-		vty_notify(ms, "Select call 1..%d\n", holdnum);
+		vty_notify(ms, "%s:Given number %d out of range!\n", ms->name, number);
+		vty_notify(ms, "%s:Select call 1..%d\n", ms->name, holdnum);
 		return -EINVAL;
 	}
 
@@ -799,7 +799,7 @@ int mncc_dtmf(struct osmocom_ms *ms, char *dtmf)
 	if (!found) {
 		LOGP(DMNCC, LOGL_INFO, "No active call to send DTMF\n");
 		vty_notify(ms, NULL);
-		vty_notify(ms, "No active call\n");
+		vty_notify(ms, "%s:No active call\n", ms->name);
 		return -EINVAL;
 	}
 

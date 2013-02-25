@@ -21,7 +21,7 @@ static void timeout_tcatcher(void *arg)
 
 	delta = time_diff(&cs->start_time, &cs->stop_time);
 
-	vty_notify(ms, "delta %f current %d\n", delta, cs->current);
+	vty_notify(ms, "%s:delta %f current %d\n", ms->name, delta, cs->current);
 
 	switch(cs->current) {
 	case CATCH_IDLE:

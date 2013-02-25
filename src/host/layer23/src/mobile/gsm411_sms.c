@@ -123,9 +123,9 @@ static int gsm411_sms_report(struct osmocom_ms *ms, struct gsm_sms *sms,
 {
 	vty_notify(ms, NULL);
 	if (!cause)
-		vty_notify(ms, "SMS to %s successfull\n", sms->address);
+		vty_notify(ms, "%s:SMS to %s successfull\n", ms->name, sms->address);
 	else
-		vty_notify(ms, "SMS to %s failed: %s\n", sms->address,
+		vty_notify(ms, "%s:SMS to %s failed: %s\n", ms->name, sms->address,
 			get_value_string(gsm411_rp_cause_strs, cause));
 
 	return 0;
@@ -193,10 +193,10 @@ static int gsm340_rx_sms_deliver(struct osmocom_ms *ms, struct msgb *msg,
 	}
 
 	vty_notify(ms, NULL);
-	vty_notify(ms, "SMS from %s: '%s'\n", gsms->address, vty_text);
+	vty_notify(ms, "%s:SMS from %s: '%s'\n", ms->name, gsms->address, vty_text);
 
 	if (gsms->data_coding_scheme == 0xc0) {
-		vty_notify(ms, "\nSILENT SMS RECEIVED!\n");
+		vty_notify(ms, "\n%s:SILENT SMS RECEIVED!\n", ms->name);
 
 		ms->catch_stat.silent_sms++;
 		if (ms->catch_stat.flag < 1)
@@ -943,7 +943,7 @@ int gsm411_rcv_sms(struct osmocom_ms *ms, struct msgb *msg)
 	case GSM48_MMSMS_ERR_IND:
 		LOGP(DLSMS, LOGL_INFO, "MM connection released.\n");
 
-		vty_notify(ms, "Release received\n");
+		vty_notify(ms, "%s:Release received\n", ms->name);
 		stop_tcatcher(ms);
 		ms->catch_stat.release++;
 		ms->catch_stat.current = CATCH_IDLE;
