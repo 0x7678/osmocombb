@@ -221,7 +221,7 @@ fail:
 	fp = fopen(sms_file, "a");
 	if (!fp)
 		goto fail;
-	fprintf(fp, "[SMS from %s]\n%s\n", gsms->address, vty_text);
+	fprintf(fp, "%s: [SMS from %s]\n%s: %s\n", ms->name, gsms->address, ms->name, vty_text);
 	fclose(fp);
 
 	talloc_free(sms_file);
