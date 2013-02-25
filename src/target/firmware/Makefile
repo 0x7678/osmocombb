@@ -27,8 +27,7 @@ ENV_e88flash_OBJS=board/compal/start.rom.o board/compal/header.o board/compal/ex
 BOARDS?=compal_e88 compal_e86 compal_e99 se_j100 gta0x pirelli_dpl10
 
 # Framebuffer support, board specific drivers
-FB_OBJS=fb/framebuffer.o fb/font.o fb/helvR08.o fb/helvB14.o fb/c64.o \
-	fb/symbols.o
+FB_OBJS=fb/framebuffer.o fb/font.o fb/helvR08.o fb/helvB14.o fb/c64.o
 
 FB_e88_OBJS=$(FB_OBJS) fb/fb_bw8.o fb/fb_st7558.o
 FB_e99_OBJS=$(FB_OBJS) fb/fb_rgb332.o fb/fb_ssd1783.o
@@ -43,13 +42,13 @@ calypso_COMMON_OBJS=board/common/calypso_uart.o board/common/calypso_pwl.o
 # OpenMoko GTA0x
 BOARD_gta0x_OBJS=$(calypso_COMMON_OBJS) board/gta0x/init.o \
 	board/gta0x/rffe_gta0x_triband.o board/gta0x/rf_power.o \
-	battery/dummy.o $(FB_dummy_OBJS)
+	$(FB_dummy_OBJS)
 BOARD_gta0x_ENVIRONMENTS=highram
 
 # Pirelli DP-L10
 BOARD_pirelli_dpl10_OBJS=$(calypso_COMMON_OBJS) board/pirelli_dpl10/init.o \
 	board/pirelli_dpl10/rffe_dpl10_triband.o board/pirelli_dpl10/rf_power.o \
-	battery/dummy.o $(FB_dpl10_OBJS)
+	$(FB_dpl10_OBJS)
 BOARD_pirelli_dpl10_ENVIRONMENTS=highram
 
 # Compal Generic
@@ -59,23 +58,23 @@ compal_COMMON_ENVIRONMENTS=compalram highram
 
 # Compal E88
 BOARD_compal_e88_OBJS=$(compal_COMMON_OBJS) board/compal_e88/init.o \
-	battery/compal_e88.o $(FB_e88_OBJS)
+	$(FB_e88_OBJS)
 BOARD_compal_e88_ENVIRONMENTS=$(compal_COMMON_ENVIRONMENTS) e88loader e88flash
 
 # Compal E86 (has a different RFFE configuration)
 BOARD_compal_e86_OBJS=$(calypso_COMMON_OBJS) board/compal_e86/init.o \
 	board/compal_e86/rffe_dualband_e86.o board/compal/rf_power.o \
-	battery/dummy.o $(FB_e86_OBJS)
+	$(FB_e86_OBJS)
 BOARD_compal_e86_ENVIRONMENTS=$(compal_COMMON_ENVIRONMENTS)
 
 # Compal E99
 BOARD_compal_e99_OBJS=$(compal_COMMON_OBJS) board/compal_e99/init.o \
-	battery/dummy.o $(FB_e99_OBJS)
+	$(FB_e99_OBJS)
 BOARD_compal_e99_ENVIRONMENTS=$(compal_COMMON_ENVIRONMENTS)
 
 # Sony Ericsson J100 (made by Compal)
 BOARD_se_j100_OBJS=$(compal_COMMON_OBJS) board/se_j100/init.o \
-	battery/dummy.o $(FB_j100_OBJS)
+	$(FB_j100_OBJS)
 BOARD_se_j100_ENVIRONMENTS=$(compal_COMMON_ENVIRONMENTS)
 
 
